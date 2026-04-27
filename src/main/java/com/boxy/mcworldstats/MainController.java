@@ -1,5 +1,6 @@
 package com.boxy.mcworldstats;
 
+import com.boxy.mcworldstats.model.WorldDataReader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -23,6 +24,7 @@ public class MainController {
     public Button generateButton;
     public TextField directoryField;
 
+    File selectedDirectory;
 
     @FXML
     public void onDirectoryButtonClick(ActionEvent actionEvent) {
@@ -33,7 +35,7 @@ public class MainController {
             dc.setInitialDirectory(initialDir);
         }
 
-        File selectedDirectory = dc.showDialog(window);
+        selectedDirectory = dc.showDialog(window);
 
         if (selectedDirectory != null && selectedDirectory.isDirectory()) {
             directoryField.setText(selectedDirectory.getAbsolutePath());
@@ -44,5 +46,6 @@ public class MainController {
     }
 
     public void onGenerateButtonClick(ActionEvent actionEvent) {
+        WorldDataReader.GetDirectoryStatistics(selectedDirectory);
     }
 }
