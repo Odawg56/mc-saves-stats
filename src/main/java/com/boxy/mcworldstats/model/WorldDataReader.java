@@ -12,15 +12,15 @@ public class WorldDataReader {
 
         try (Stream<Path> paths = Files.walk(directory.toPath(),1)){
             paths.filter(Files::isDirectory)
-                    .forEach(path -> System.out.println("Folder: " + path.toAbsolutePath()));
+                    .forEach(WorldDataReader::GetPerSaveStats);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private static void GetPerSaveStats(Path saveFolder) {
-        final String relativeFileName = "players/stats";
-        File something = saveFolder.toFile();
-
+        Path statsFolder = saveFolder.resolve("players/stats").normalize();
+        String longname = statsFolder.toAbsolutePath().toString();
+        System.out.println(longname);
     }
 }
