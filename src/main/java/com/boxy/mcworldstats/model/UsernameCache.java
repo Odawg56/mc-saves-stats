@@ -66,29 +66,36 @@ public class UsernameCache {
 
         // Attempt to read username, and return empty if it's not there.
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(cache_source);
-        String existing_name = root.get(raw_uuid).asString("");
+        JsonNode cacheJson = mapper.readTree(cache_source);
 
 
-        if (!existing_name.isEmpty()) {
+        if (cacheJson.get(raw_uuid) != null) {
             // if exists, return the value
-            return existing_name;
+            return cacheJson.get(raw_uuid).asString("");
         } else {
             // if not in data, lookup and add to JSON
-            try {
-                String name = FetchNameFromAPI(raw_uuid);
-                Map<String, String> data = new LinkedHashMap<>();
-                data.put(raw_uuid,name);
-                mapper.writeValue(cache_source,data);
-
-                return name;
-            } catch (Exception e) {
-                // GET fails somehow
+            String name = FetchNameFromAPI(raw_uuid);
+            if (name.isEmpty()) {
                 // TODO: get user to manually lookup the username via https://mcuuid.net/ and input into app
-                System.out.println(e.getMessage());
-                throw new Exception(e.getMessage());
+                System.out.println("API request failed, would need to input name manually at this stage.");
+                return "NoNameBozo";
+            } else {
+                try {
+                    Map<String, String> data = new LinkedHashMap<>();
+                    data.put(raw_uuid,name);
+                    mapper.writeValue(cache_source,data);
+
+                    return name;
+                } catch (Exception e) {
+                    // Write to cache fails
+
+                    System.out.println(e.getMessage());
+                    throw new Exception(e.getMessage());
+                }
             }
+
         }
+
     }
 
     /**
@@ -96,7 +103,7 @@ public class UsernameCache {
      * @param raw_uuid the raw UUID (including dashes)
      * @return The name on success, and an empty string on failure.
      */
-    private static String FetchNameFromAPI(String raw_uuid) throws Exception {
+    private static String FetchNameFromAPI(String raw_uuid) {
         try (HttpClient client = HttpClient.newHttpClient()) {
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -122,9 +129,9 @@ public class UsernameCache {
                 System.out.println("Name request returned other code:" + response.statusCode());
             }
         } catch (Exception e) {
-            throw new Exception(e.getMessage());
+            return "";
         }
-        throw new Exception("Username fetch failed: I don't know how it's possible to get here.");
+        return "";
     }
 
     private static String TrimUUID(String full_uuid) {

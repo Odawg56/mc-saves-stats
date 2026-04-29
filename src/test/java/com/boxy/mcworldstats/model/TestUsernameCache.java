@@ -13,7 +13,7 @@ public class TestUsernameCache {
         }
     }
     @Test
-    public void testAnotherThing() {
+    public void printUserHomeAndAppData() {
         System.out.println(System.getProperty("user.home"));
         System.out.println(System.getenv("APPDATA"));
     }
