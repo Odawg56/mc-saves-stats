@@ -4,6 +4,7 @@ module com.boxy.mcworldstats {
 
     requires org.controlsfx.controls;
     requires tools.jackson.databind;
+    requires java.net.http;
 
     opens com.boxy.mcworldstats to javafx.fxml;
     exports com.boxy.mcworldstats;
