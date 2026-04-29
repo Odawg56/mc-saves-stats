@@ -1,5 +1,7 @@
 package com.boxy.mcworldstats.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -10,6 +12,9 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public class WorldDataReader {
+
+    public static Logger logger = LoggerFactory.getLogger(WorldDataReader.class);
+
     public static void GetDirectoryStatistics(File directory) {
         if (!directory.isDirectory()) throw new IllegalArgumentException("File must be a directory!");
 
@@ -17,6 +22,7 @@ public class WorldDataReader {
 
         try (Stream<Path> paths = Files.walk(directory.toPath(),1)){
             Path[] saves = paths.filter(Files::isDirectory).toArray(Path[]::new);
+            logger.info("Found {} save files", saves.length);
             for(Path save : saves) {
                 directoryHrs += GetPerSaveStats(save);
             }
