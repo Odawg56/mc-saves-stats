@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class WorldDataReader {
@@ -22,9 +23,11 @@ public class WorldDataReader {
 
         try (Stream<Path> paths = Files.walk(directory.toPath(),1)){
             Path[] saves = paths.filter(Files::isDirectory).toArray(Path[]::new);
-            logger.info("Found {} save files", saves.length);
-            for(Path save : saves) {
-                directoryHrs += GetPerSaveStats(save);
+            Path[] saves_without_root = Arrays.copyOfRange(saves,1,saves.length);
+
+            logger.info("Found {} save files in {}", saves_without_root.length, directory.getName());
+            for(Path savePath : saves_without_root) {
+                directoryHrs += GetPerSaveHours(savePath);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -32,7 +35,7 @@ public class WorldDataReader {
         logger.info("Total Hrs for given directory: {}",directoryHrs);
     }
 
-    private static double GetPerSaveStats(Path saveFolder) {
+    private static double GetPerSaveHours(Path saveFolder) {
         Path statsFolderOld = saveFolder.resolve("players/stats").normalize();
         Path statsFolderNew = saveFolder.resolve("stats").normalize();
         Path usableStatsFolder = null;
@@ -57,7 +60,7 @@ public class WorldDataReader {
                         .filter(Files::isRegularFile)
                         .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".json"))
                         .toArray(Path[]::new);
-                logger.info("Found {} stats files in directory {}", statFiles.length, usableStatsFolder.toAbsolutePath());
+                logger.info("Found {} stats files in save {}", statFiles.length, saveFolder.getFileName());
                 for (Path stat : statFiles) {
                     worldHrs += GetPlayerHours(stat);
                 }
