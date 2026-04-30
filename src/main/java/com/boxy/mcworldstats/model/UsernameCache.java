@@ -1,8 +1,9 @@
 package com.boxy.mcworldstats.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,16 +11,18 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * This class effectively exists to prevent excessive API calls to Mojang.
  */
 public class UsernameCache {
-    public static File cache_source = getCacheFile();
+    public static Logger logger = LoggerFactory.getLogger(UsernameCache.class);
+
+    private static File cache_source = getCacheFile();
+
 
     /**
      * Gets the userCache.json {@code File} from the app's directory in appdata, and creates the app directory
@@ -31,25 +34,27 @@ public class UsernameCache {
         // Create path for appdata folder for this app
         String appDataPath = System.getenv("APPDATA");
         if (appDataPath == null) {
-            throw new RuntimeException("APPDATA environment variable not found. This code is intended for Windows.");
+            logger.error("APPDATA environment variable not found. This code is intended for Windows.");
+            throw new RuntimeException();
         }
         // Create a subdirectory for your application
         File appDir = new File(appDataPath, "McWorldStats");
         if (!appDir.exists()) {
             if (!appDir.mkdirs()) {
-                System.err.println("Failed to create directory: " + appDir.getAbsolutePath());
+                logger.warn("Failed to create directory: {}", appDir.getAbsolutePath());
             }
         }
         File cacheFile = new File(appDir, "userCache.json");
         try {
             if (!cacheFile.exists()) {
                 if (!cacheFile.createNewFile()) {
-                    System.err.println("Failed to create file: " + cacheFile.getAbsolutePath());
+                    logger.warn("Failed to create file: {}",cacheFile.getAbsolutePath());
+                } else {
+                    logger.info("Username cache not present, created: {}", cacheFile.getAbsolutePath());
                 }
             }
         } catch (IOException e) {
-            System.err.println("An error occurred while creating the file: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("An error occurred while creating the file: {}", e.getMessage());
         }
 
         return cacheFile;
@@ -58,6 +63,8 @@ public class UsernameCache {
     private UsernameCache() {
         throw new IllegalStateException("This is a utility class and cannot be instantiated.");
     }
+
+
     public static String LookupUsername(String raw_uuid) throws Exception {
         if (!cache_source.exists() || !cache_source.isFile()) {
             // force set if it somehow isn't present
@@ -76,9 +83,10 @@ public class UsernameCache {
             // if not in data, lookup and add to JSON
             String name = FetchNameFromAPI(raw_uuid);
             if (name.isEmpty()) {
-                // TODO: get user to manually lookup the username via https://mcuuid.net/ and input into app
-                System.out.println("API request failed, would need to input name manually at this stage.");
-                return "NoNameBozo";
+                logger.warn("API request failed, would need to input name manually at this stage.");
+                Scanner nameScan = new Scanner(System.in);
+                System.out.println("Manually lookup UUID "+raw_uuid+" at https://mcuuid.net/: ");
+                return nameScan.nextLine();
             } else {
                 try {
                     Map<String, String> data = new LinkedHashMap<>();
@@ -88,8 +96,7 @@ public class UsernameCache {
                     return name;
                 } catch (Exception e) {
                     // Write to cache fails
-
-                    System.out.println(e.getMessage());
+                    logger.error("Writing to username cache failed: {}",e.getMessage());
                     throw new Exception(e.getMessage());
                 }
             }
@@ -118,15 +125,15 @@ public class UsernameCache {
                 String received_name = root.get("name").asString("");
 
                 if (!received_name.isEmpty()) {
-                    System.out.println("Got name from API: " + received_name);
+                    logger.info("Got name from API: {}", received_name);
                     return received_name;
                 } else {
-                    System.out.println("JSON Response not readable for some reason...");
+                    logger.warn("Mojang JSON Response not readable for some reason...");
                 }
             } else if (response.statusCode() == 204) {
-                System.err.println("Mojang API hitting rate limit!");
+                logger.warn("Mojang API hitting rate limit!");
             } else {
-                System.out.println("Name request returned other code:" + response.statusCode());
+                logger.warn("Name request returned other code:" + response.statusCode());
             }
         } catch (Exception e) {
             return "";
@@ -134,6 +141,11 @@ public class UsernameCache {
         return "";
     }
 
+    /**
+     * Trims the given UUID, removing all the '-' characters.
+     * @param full_uuid the raw UUID, including '-' characters
+     * @return the trimmed UUID, suitable for passing to the Mojang API.
+     */
     private static String TrimUUID(String full_uuid) {
         return full_uuid.replace("-","");
     }
