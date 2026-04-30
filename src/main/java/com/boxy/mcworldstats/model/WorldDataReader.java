@@ -29,37 +29,49 @@ public class WorldDataReader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("Total Hrs for given directory: "+directoryHrs);
+        logger.info("Total Hrs for given directory: {}",directoryHrs);
     }
 
     private static double GetPerSaveStats(Path saveFolder) {
-        Path statsFolder = saveFolder.resolve("players/stats").normalize();
-        File fileEq = statsFolder.toFile();
+        Path statsFolderOld = saveFolder.resolve("players/stats").normalize();
+        Path statsFolderNew = saveFolder.resolve("stats").normalize();
+        Path usableStatsFolder = null;
+        boolean statsFolderFound = false;
 
         double worldHrs = 0.0;
 
-        // only get stats for stats directories that actually exist
-        if (fileEq.isDirectory() && fileEq.exists()) {
-//            String longname = statsFolder.toAbsolutePath().toString();
-//            System.out.println(longname);
+        // Choose correct stats directory regardless of old/new format.
+        if (statsFolderOld.toFile().isDirectory() && statsFolderOld.toFile().exists()) {
+            statsFolderFound = true;
+            usableStatsFolder = statsFolderOld;
+        } else if (statsFolderNew.toFile().isDirectory() && statsFolderNew.toFile().exists()) {
+            statsFolderFound = true;
+            usableStatsFolder = statsFolderNew;
+        } else {
+            logger.warn("Could not find valid stats folder for save '{}'",saveFolder.getFileName());
+        }
 
-            try (Stream<Path> individual_stat = Files.walk(statsFolder,1)) {
-               Path[] statFiles = individual_stat
-                       .filter(Files::isRegularFile)
-                       .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".json"))
-                       .toArray(Path[]::new);
-               for (Path stat : statFiles) {
-                   worldHrs += GetPlayerHours(stat);
-               }
+        if (statsFolderFound) {
+            try (Stream<Path> individual_stat = Files.walk(usableStatsFolder,1)) {
+                Path[] statFiles = individual_stat
+                        .filter(Files::isRegularFile)
+                        .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".json"))
+                        .toArray(Path[]::new);
+                logger.info("Found {} stats files in directory {}", statFiles.length, usableStatsFolder.toAbsolutePath());
+                for (Path stat : statFiles) {
+                    worldHrs += GetPlayerHours(stat);
+                }
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
+
         return worldHrs;
     }
 
     private static double GetPlayerHours(Path statFile) {
+        logger.info("Reading stats for UUID: {}", statFile.getFileName());
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(statFile);
         int time_played_ticks = root.get("stats").get("minecraft:custom").get("minecraft:play_time").asInt(0);
