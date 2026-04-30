@@ -70,12 +70,40 @@ public class WorldDataReader {
         return worldHrs;
     }
 
+    /**
+     * Returns the hours played for a given player statistics file, and updates the session memory with other desired statistics.
+     * @param statFile the path to a player statistics .JSON file. filename must be UUID.
+     * @return the number of hours played on the given stats file.
+     */
     private static double GetPlayerHours(Path statFile) {
-        logger.info("Reading stats for UUID: {}", statFile.getFileName());
+        String uuid = TrimFileExtension(statFile);
+        logger.info("Reading stats for UUID: {}", uuid);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(statFile);
         int time_played_ticks = root.get("stats").get("minecraft:custom").get("minecraft:play_time").asInt(0);
+        double time_played_hours = (double)time_played_ticks/72000;
 
-        return (double)time_played_ticks/72000;
+        Player p = SessionMemory.getPlayer(uuid);
+        p.incrementTotalHrs(time_played_hours);
+        p.ensureDisplayName();
+        SessionMemory.setPlayer(p);
+
+        return time_played_hours;
+    }
+
+    /**
+     * Gets just the filename of a file at a given path, removing the file extension
+     * e.g. 'temp\test.txt' becomes 'test'.
+     * Precondition: {@code fileToTrim} exists and isn't a directory.
+     * @param fileToTrim the path at which a file to trim is located.
+     * @return the filename without extension.
+     */
+    private static String TrimFileExtension(Path fileToTrim) {
+        String fileName = fileToTrim.getFileName().toString();
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex <= 0) {
+            return fileName;
+        }
+        return fileName.substring(0,dotIndex);
     }
 }
