@@ -80,7 +80,7 @@ public class WorldDataReader {
      */
     private static double GetPlayerHours(Path statFile) {
         String uuid = TrimFileExtension(statFile);
-        logger.info("Reading stats for UUID: {}", uuid);
+        logger.debug("Reading stats for UUID: {}", uuid);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(statFile);
         int time_played_ticks = root.get("stats").get("minecraft:custom").get("minecraft:play_time").asInt(0);
