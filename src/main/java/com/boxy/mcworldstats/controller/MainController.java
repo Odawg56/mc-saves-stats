@@ -1,4 +1,4 @@
-package com.boxy.mcworldstats;
+package com.boxy.mcworldstats.controller;
 
 import com.boxy.mcworldstats.model.WorldDataReader;
 import javafx.event.ActionEvent;
@@ -7,13 +7,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.net.URL;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ResourceBundle;

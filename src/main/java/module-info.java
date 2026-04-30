@@ -9,4 +9,6 @@ module com.boxy.mcworldstats {
 
     opens com.boxy.mcworldstats to javafx.fxml;
     exports com.boxy.mcworldstats;
+    exports com.boxy.mcworldstats.controller;
+    opens com.boxy.mcworldstats.controller to javafx.fxml;
 }

@@ -1,0 +1,24 @@
+.bg {
+    -fx-background-color: #232323;
+}
+.check-box {
+    -fx-text-fill: green;
+}
+.button {
+    -fx-text-fill: white;
+    -fx-background-color: green;
+    -fx-background-radius: 10;
+}
+.button:hover {
+    -fx-text-fill: white;
+    -fx-background-color: #388738;
+    -fx-background-radius: 10;
+}
+.text-field {
+    -fx-text-fill: black;
+    -fx-background-color: grey;
+    -fx-background-radius: 10;
+    -fx-border-color: green;
+    -fx-border-radius: 10;
+    -fx-border-width: 2;
+}
