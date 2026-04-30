@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +12,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -71,11 +70,14 @@ public class UsernameCache {
             cache_source = getCacheFile();
         }
 
-        // Attempt to read username, and return empty if it's not there.
+
         ObjectMapper mapper = new ObjectMapper();
         JsonNode cacheJson = mapper.readTree(cache_source);
+        if (!(cacheJson instanceof ObjectNode)) {
+            throw new IllegalArgumentException("Root JSON is not an object");
+        }
 
-
+        // Attempt to read username, and return empty if it's not there.
         if (cacheJson.get(raw_uuid) != null) {
             // if exists, return the value
             return cacheJson.get(raw_uuid).asString("");
@@ -89,9 +91,9 @@ public class UsernameCache {
                 return nameScan.nextLine();
             } else {
                 try {
-                    Map<String, String> data = new LinkedHashMap<>();
-                    data.put(raw_uuid,name);
-                    mapper.writeValue(cache_source,data);
+                    ObjectNode cacheObject = (ObjectNode) cacheJson;
+                    cacheObject.put(raw_uuid,name);
+                    mapper.writerWithDefaultPrettyPrinter().writeValue(cache_source,cacheObject);
 
                     return name;
                 } catch (Exception e) {
