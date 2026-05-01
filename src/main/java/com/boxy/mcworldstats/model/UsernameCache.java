@@ -1,5 +1,6 @@
 package com.boxy.mcworldstats.model;
 
+import com.boxy.mcworldstats.util.AppDataAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.JsonNode;
@@ -7,7 +8,6 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -17,7 +17,7 @@ import java.util.Scanner;
 /**
  * This class effectively exists to prevent excessive API calls to Mojang.
  */
-public class UsernameCache {
+public class UsernameCache extends AppDataAccessor {
     private static final Logger logger = LoggerFactory.getLogger(UsernameCache.class);
 
     private static File cache_source = getCacheFile();
@@ -30,33 +30,7 @@ public class UsernameCache {
      * @return the JSON File to cache usernames in
      */
     private static File getCacheFile() {
-        // Create path for appdata folder for this app
-        String appDataPath = System.getenv("APPDATA");
-        if (appDataPath == null) {
-            logger.error("APPDATA environment variable not found. This code is intended for Windows.");
-            throw new RuntimeException();
-        }
-        // Create a subdirectory for your application
-        File appDir = new File(appDataPath, "McWorldStats");
-        if (!appDir.exists()) {
-            if (!appDir.mkdirs()) {
-                logger.warn("Failed to create directory: {}", appDir.getAbsolutePath());
-            }
-        }
-        File cacheFile = new File(appDir, "userCache.json");
-        try {
-            if (!cacheFile.exists()) {
-                if (!cacheFile.createNewFile()) {
-                    logger.warn("Failed to create file: {}",cacheFile.getAbsolutePath());
-                } else {
-                    logger.info("Username cache not present, created: {}", cacheFile.getAbsolutePath());
-                }
-            }
-        } catch (IOException e) {
-            logger.error("An error occurred while creating the file: {}", e.getMessage());
-        }
-
-        return cacheFile;
+        return getAppDataFile("userCache.json");
     }
 
     private UsernameCache() {
