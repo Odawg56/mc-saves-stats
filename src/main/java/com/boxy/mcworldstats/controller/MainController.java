@@ -5,10 +5,13 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
@@ -18,21 +21,36 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
+    private static final Logger logger =  LoggerFactory.getLogger(MainController.class);
+
     private Stage window;
     public void setWindow(Stage window) {
         this.window = window;
     }
 
-    public TextArea outputBox;
     public Button directoryButton;
     public Button generateButton;
     public TextField directoryField;
+
+    @FXML
+    public CheckBox opt1;
+    @FXML
+    public CheckBox opt2;
+    @FXML
+    public CheckBox opt3;
+    @FXML
+    public CheckBox opt4;
+    @FXML
+    public CheckBox opt5;
+    @FXML
+    public CheckBox opt6;
+
 
     File selectedDirectory;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("Home directory: "+System.getProperty("user.home"));
+        generateButton.setDisable(true);
     }
 
     @FXML
@@ -52,6 +70,7 @@ public class MainController implements Initializable {
 
         if (selectedDirectory != null && selectedDirectory.isDirectory()) {
             directoryField.setText(selectedDirectory.getAbsolutePath());
+            generateButton.setDisable(false);
         } else {
             directoryField.setText("No directory selected.");
         }
@@ -62,4 +81,15 @@ public class MainController implements Initializable {
         WorldDataReader.GetDirectoryStatistics(selectedDirectory);
     }
 
+    public void onOptChanged(ActionEvent actionEvent) {
+        Object o = actionEvent.getSource();
+        if (o instanceof CheckBox cb) {
+            logger.debug("Checkbox {} changed state: {}", cb.getId(), cb.isSelected());
+            switch (cb.getId()) {
+                case "opt1":
+            }
+        } else {
+            logger.warn("Object {} has created an event that only option checkboxes should create",o);
+        }
+    }
 }

@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class WorldDataReader {
 
-    public static Logger logger = LoggerFactory.getLogger(WorldDataReader.class);
+    public static final Logger logger = LoggerFactory.getLogger(WorldDataReader.class);
 
     public static void GetDirectoryStatistics(File directory) {
         if (!directory.isDirectory()) throw new IllegalArgumentException("File must be a directory!");

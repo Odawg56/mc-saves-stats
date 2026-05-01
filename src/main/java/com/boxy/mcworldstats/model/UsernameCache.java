@@ -18,7 +18,7 @@ import java.util.Scanner;
  * This class effectively exists to prevent excessive API calls to Mojang.
  */
 public class UsernameCache {
-    public static Logger logger = LoggerFactory.getLogger(UsernameCache.class);
+    private static final Logger logger = LoggerFactory.getLogger(UsernameCache.class);
 
     private static File cache_source = getCacheFile();
 

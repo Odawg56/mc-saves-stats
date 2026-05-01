@@ -12,11 +12,11 @@
       <children>
          <HBox prefHeight="27.0" prefWidth="470.0" spacing="5.0">
             <children>
-               <Button fx:id="directoryButton" mnemonicParsing="false" onAction="#onDirectoryButtonClick" text="Select Directory..." />
+               <Button fx:id="directoryButton" mnemonicParsing="false" onAction="#onDirectoryButtonClick" prefHeight="30.0" prefWidth="115.0" text="Select Directory..." />
                <TextField fx:id="directoryField" editable="false" prefHeight="26.0" prefWidth="260.0" promptText="Directory" HBox.hgrow="ALWAYS" />
             </children>
          </HBox>
-          <Button fx:id="generateButton" onAction="#onGenerateButtonClick" text="Generate" AnchorPane.rightAnchor="0.0" />
+          <Button fx:id="generateButton" onAction="#onGenerateButtonClick" prefHeight="30.0" prefWidth="75.0" text="Generate" AnchorPane.rightAnchor="0.0" />
       </children>
    </AnchorPane>
    <GridPane>
@@ -30,12 +30,12 @@
        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
      </rowConstraints>
       <children>
-         <CheckBox mnemonicParsing="false" text="CheckBox" />
-         <CheckBox mnemonicParsing="false" text="CheckBox" GridPane.rowIndex="1" />
-         <CheckBox mnemonicParsing="false" text="CheckBox" GridPane.rowIndex="2" />
-         <CheckBox mnemonicParsing="false" text="CheckBox" GridPane.columnIndex="1" />
-         <CheckBox mnemonicParsing="false" text="CheckBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-         <CheckBox mnemonicParsing="false" text="CheckBox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+         <CheckBox fx:id="opt1" mnemonicParsing="false" onAction="#onOptChanged" text="Ignore singleplayer worlds" />
+         <CheckBox fx:id="opt2" mnemonicParsing="false" onAction="#onOptChanged" text="Calculate extended player stats" GridPane.rowIndex="1" />
+         <CheckBox fx:id="opt3" mnemonicParsing="false" onAction="#onOptChanged" text="Keep results between directories" GridPane.rowIndex="2" />
+         <CheckBox fx:id="opt4" disable="true" mnemonicParsing="false" onAction="#onOptChanged" text="Future Option 1" GridPane.columnIndex="1" />
+         <CheckBox fx:id="opt5" disable="true" mnemonicParsing="false" onAction="#onOptChanged" text="Future Option 2" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+         <CheckBox fx:id="opt6" disable="true" mnemonicParsing="false" onAction="#onOptChanged" text="Future Option 3" GridPane.columnIndex="1" GridPane.rowIndex="2" />
       </children>
    </GridPane>
    <TabPane prefHeight="200.0" prefWidth="200.0" styleClass="bg" tabClosingPolicy="UNAVAILABLE">
